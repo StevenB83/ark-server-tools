@@ -94,7 +94,7 @@ Install ARK Server Tools
 To install ARK Server Tools run this command:
 
 [source,sh]
-curl -sL https://git.io/JtPnY | sudo bash -s steam
+curl -sL https://git.io/JtPVE | sudo bash -s steam
 
 NB: You may want to change the `bash -s` parameter to fit your steam user if different from `steam`.
 
@@ -105,7 +105,7 @@ This will copy the `arkmanager` script and its daemon to the proper directories 
 To instead perform a user-install of ARK Server Tools as an unprivileged user, run this command:
 
 [source,sh]
-curl -sL https://git.io/JtPnY | bash -s -- --me
+curl -sL https://git.io/JtPVE | bash -s -- --me
 
 Configuration
 ~~~~~~~~~~~~~
