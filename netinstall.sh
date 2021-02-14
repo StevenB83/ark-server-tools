@@ -4,7 +4,7 @@
 # Net Installer, used with curl
 #
 
-arkstGithubRepo="arkmanager/ark-server-tools"
+arkstGithubRepo="StevenB83/ark-server-tools"
 
 steamcmd_user="$1"
 shift
@@ -112,7 +112,7 @@ function doInstallFromBranch(){
   channel="$1"
   shift
   commit="`curl -s "https://api.github.com/repos/${arkstGithubRepo}/git/refs/heads/${channel}" | sed -n 's/^ *"sha": "\(.*\)",.*/\1/p'`"
-  
+
   if [ -z "$commit" ]; then
     if [ -n "$unstable" ]; then
       echo "Channel ${channel} not found - trying master"
@@ -133,4 +133,3 @@ if [ "$channel" = "master" ] && [ -z "$unstable" ]; then
 else
   doInstallFromBranch "$channel" "${args[@]}"
 fi
-

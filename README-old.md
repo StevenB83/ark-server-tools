@@ -1,6 +1,6 @@
 # ARK: Survival Evolved Linux Server Tools
 
-This tool allows you to manage any ARK: Survival Evolved linux server without having to remember long commands.  
+This tool allows you to manage any ARK: Survival Evolved linux server without having to remember long commands.
 It provides a lot of features, to get the full list check the **Commands** section on the bottom of this page.
 
 ## Pre-requisites
@@ -30,7 +30,7 @@ NB: Change the ports according to the ones set in your `arkmanager.cfg` file.
 To install ARK Server Tools run this command:
 
 ```sh
-curl -sL http://git.io/vtf5N | sudo bash -s steam
+curl -sL http://git.io/JtPnY | sudo bash -s steam
 ```
 
 NB: You may want to change the `bash -s` parameter to fit your steam user if different from `steam`.
@@ -40,14 +40,14 @@ This will copy the `arkmanager` script and its daemon to the proper directories 
 To instead perform a user-install of ARK Server Tools as an unprivileged user, run this command:
 
 ```sh
-curl -sL http://git.io/vtf5N | bash -s -- --me
+curl -sL http://git.io/JtPnY | bash -s -- --me
 ```
 
 ## Configuration
 
 Stored in `/etc/arkmanager/arkmanager.cfg` you can find the variables needed to start the server, like the port numbers, the system environment variables and so on.
 
-Also, in this file, you can specify any parameter you want to add to the startup command of ARK server.  
+Also, in this file, you can specify any parameter you want to add to the startup command of ARK server.
 These parameters must be prefixed by the `ark_` string, some example could be:
 
 ```sh
@@ -57,7 +57,7 @@ ark_ServerPVE=False
 ark_DifficultyOffset=1
 ```
 
-Your session name may not contain special characters (eg. `!![EU]!! Aw&some ARK`) as it could break the startup command.  
+Your session name may not contain special characters (eg. `!![EU]!! Aw&some ARK`) as it could break the startup command.
 In this case you may want to comment out the `ark_SessionName` variable and define it inside your **GameUserSettings.ini** file instead.
 
 To specify an option without an argument (e.g. `bRawSockets`), specify an empty argument (e.g. `ark_bRawSockets=""`).

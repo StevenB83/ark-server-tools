@@ -4,8 +4,9 @@
 #
 # Original author:      LeXaT
 # Original Maintainer:  FezVrasta
-# Current Maintainer:   klightspeed
+# Current Maintainer:   klightspeed (arkmanager/ark-server-tools)
 # Contributors:         Sispheor, Atriusftw, klightspeed, lexat, puseidr, chriscpritchard
+# Fork Maintainer:      StevenB83
 
 #disable exportall so options are no exported under Debian et al.
 set +o allexport
@@ -29,7 +30,7 @@ arkstUsePkgManager=''
 arkstRootUseEnv=''
 
 # Set this to override the main fork
-arkstGithubRepoOverride=''
+arkstGithubRepoOverride='StevenB83/ark-server-tools'
 
 # Set this to override the global config file path
 arkstGlobalCfgFileOverride=''
@@ -358,7 +359,7 @@ checkConfig() {
       if [ ! -w "${savedarksdir}" ]; then
         echo -e "[" "$RED" "ERROR" "$NORMAL" "]" "\tThe ARK SavedArks directory is not writable, and saveworld will fail" >&2
       fi
-      
+
       mkdir -p "${arkserverroot}/${arkserverdir:-ShooterGame}/Content/Mods"
       if [ ! -w "${arkserverroot}/${arkserverdir:-ShooterGame}/Content/Mods" ]; then
         echo -e "[" "$RED" "ERROR" "$NORMAL" "]" "\tThe ARK Mods directory is not writable, and installmod will fail" >&2
@@ -1084,7 +1085,7 @@ doRun() {
     echo "Aborting - two servers MUST NOT run from the same directory"
     exit 1
   fi
-  
+
   # $$ returns the main process, $BASHPID returns the current process
   echo "$BASHPID" >"${arkserverroot}/${arkmanagerpidfile}"
 
@@ -1430,12 +1431,12 @@ doStart() {
     if [[ " $* " =~ " --alwaysrestart " ]]; then
       arkAlwaysRestartOnCrash=true
     fi
-    
+
     nobackground=
     if [[ " $* " =~ " --no-background " ]]; then
       nobackground=1
     fi
-    
+
     tput sc
     logprint "The server is starting..."
 
@@ -1768,9 +1769,9 @@ printWarnMessage(){
 isUpdateCancelRequested(){
   if [ -n "$chatCommandRestartCancel" ]; then
     local canceltime="$(
-      find "${arkserverroot}/${arkserverdir}/Saved/Logs" -name 'ServerGame.*.log' -mmin -5 -print0 | 
-        xargs -0 grep -F -e "${chatCommandRestartCancel}" | 
-        sed 's@^[[]\(....\)\.\(..\)\.\(..\)-\(..\)\.\(..\)\.\(..\):.*@\1-\2-\3 \4:\5:\6 UTC@' | 
+      find "${arkserverroot}/${arkserverdir}/Saved/Logs" -name 'ServerGame.*.log' -mmin -5 -print0 |
+        xargs -0 grep -F -e "${chatCommandRestartCancel}" |
+        sed 's@^[[]\(....\)\.\(..\)\.\(..\)-\(..\)\.\(..\)\.\(..\):.*@\1-\2-\3 \4:\5:\6 UTC@' |
         head -n1)"
     if [ -n "${canceltime}" ]; then
       canceltime="$(date +%s --date="${canceltime}")"
@@ -2137,7 +2138,7 @@ doUpdate() {
           logprint "Unable to find saved arks directory"
         else
           mapfile="${savedir}/${mapname}.ark"
-  
+
           if [ ! -f "${mapfile}" ]; then
             sleep 2
           fi
@@ -2280,12 +2281,12 @@ checkForModUpdate(){
   local cancheckmodavail=1
   local modmissing=
   local revstatcode=
-  local alluptodate=1 
+  local alluptodate=1
 
   if [[ " $* " =~ " --revstatus " ]]; then
     revstatcode=1
   fi
-  
+
   if [ ! -d "${steamworkshopdir}" ]; then
     echo "Error: ${steamworkshopdir} does not exist"
     if [ -n "$revstatcode" ]; then return 4; else return 0; fi
@@ -2999,7 +3000,7 @@ doBackup(){
   echo -ne "${NORMAL} Copying ARK world file (${mapname}) "
 
   local mapfile="${savedir}/${mapname}.ark"
-  
+
   cp -p "${mapfile}" "${backupdir}/${mapname}.ark"
   if [ ! -f "${backupdir}/${mapname}.ark" ]; then
     sleep 2
@@ -3038,7 +3039,7 @@ doBackup(){
       fi
     done
   fi
-  
+
   # Copy map autobackups
   if [ -n "$includeAutoBackups" ] && [ "$includeAutoBackups" != "false" ]; then
     echo -e "${NORMAL} Copying all ARK world autobackup files"
@@ -3138,10 +3139,9 @@ doBackup(){
   else
     echo -e "${NORMAL}\e[68G[ ${RED}FAILED${NORMAL} ]"
   fi
-   
-   
+
    echo -ne "${NORMAL} Copying Game.ini "
-  
+
   cp -p "${savedcfgdir}/Game.ini" "${backupdir}/Game.ini"
   if [ ! -s "${backupdir}/Game.ini" ]; then
     sleep 2
@@ -3152,8 +3152,7 @@ doBackup(){
   else
     echo -e "${NORMAL}\e[68G[ ${RED}FAILED${NORMAL} ]"
   fi
-  
-  
+
   #Tar the files and remove the original Backup Directory.  Saves about 50MB of disk space per backup
 
   echo -ne "${NORMAL} Compressing Backup "
@@ -3626,10 +3625,10 @@ addArkOpt() {
   local optname="${1%%=*}"
   local optval="${1#*=}"
   local optdash="${optname:0:1}"
-  
+
   optname="${optname#-}"
   optname="${optname//[^A-Za-z0-9_]/_}"
-  
+
   if [[ "${optval}" == "${optname}" ]]; then
     optval=""
   fi
@@ -3761,7 +3760,7 @@ main(){
 
   # check the configuration and throw errors or warnings if needed
   checkConfig
-  
+
   status=0
 
   while true; do
