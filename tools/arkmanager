@@ -1286,7 +1286,7 @@ doRun() {
       restartserver=1
       touch "$arkserverroot/$arkautorestartfile"
     fi
-    # Retries for checking it the server comes back up after going down
+    # Retries for checking if the server comes back up after going down
     serverdowntries=0
 
     sleep 5
@@ -1311,8 +1311,8 @@ doRun() {
         elif isTheServerUp; then
           (( serverdowntries++ ))
 
-          if (( serverdowntries > 12 )); then
-            # Server has not been listening for 60 seconds, so restart it.
+          if (( serverdowntries > 60 )); then
+            # Server has not been listening for 5 minutes, so restart it.
             echo "$(timestamp): The server has stopped listening"
             echo "$(timestamp): Restarting server"
             notify "${notifyMsgStoppedListening:-Server has stopped listening - restarting}"
@@ -1321,7 +1321,7 @@ doRun() {
                 break
               fi
               kill -INT "$serverpid"
-              sleep 5
+              sleep 10
             done
             if kill -0 "$serverpid"; then
               echo "$(timestamp): Graceful restart failed - killing server"
@@ -1542,7 +1542,7 @@ doStop() {
       kill -INT "$PID" >/dev/null 2>&1
     fi
 
-    for (( i = 0; i < 20; i++ )); do
+    for (( i = 0; i < 120; i++ )); do
       sleep 1
       if ! isTheServerRunning; then
         break
