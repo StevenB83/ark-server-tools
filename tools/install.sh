@@ -353,7 +353,7 @@ else
       cp -n "${INSTALL_ROOT}${CONFIGFILE}.example" "${INSTALL_ROOT}${CONFIGFILE}"
       chown "$steamcmd_user" "${INSTALL_ROOT}${CONFIGFILE}"
       cp -n "${INSTALL_ROOT}/${INSTANCEDIR}/instance.cfg.example" "${INSTALL_ROOT}/${INSTANCEDIR}/main.cfg"
-      chown "$steamcmd_user" "${INSTALL_ROOT}${INSTANCEDIR}/instance.cfg"
+      chown "$steamcmd_user" "${INSTALL_ROOT}${INSTANCEDIR}/main.cfg"
     fi
 fi
 
