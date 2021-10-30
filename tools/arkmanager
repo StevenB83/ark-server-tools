@@ -1325,8 +1325,8 @@ doRun() {
         elif isTheServerUp; then
           (( serverdowntries++ ))
 
-          if (( serverdowntries > 60 )); then
-            # Server has not been listening for 5 minutes, so restart it.
+          if (( serverdowntries > 120 )); then
+            # Server has not been listening for 10 minutes, so restart it.
             echo "$(timestamp): The server has stopped listening"
             echo "$(timestamp): Restarting server"
             notify "${notifyMsgStoppedListening:-Server has stopped listening - restarting}"
@@ -1556,7 +1556,7 @@ doStop() {
       kill -INT "$PID" >/dev/null 2>&1
     fi
 
-    for (( i = 0; i < 120; i++ )); do
+    for (( i = 0; i < 600; i++ )); do
       sleep 1
       if ! isTheServerRunning; then
         break
@@ -1601,6 +1601,20 @@ doStopAll(){
       )
     fi
   done
+}
+
+#
+# kills the ARK server
+#
+doKill() {
+  logprint "Killing server"
+  rm -f "$arkserverroot/$arkautorestartfile"
+  rm -f "$arkserverroot/$arkoldautorestartfile"
+  kill -KILL "$PID" >/dev/null 2>&1
+  rm -f "${arkserverroot}/${arkserverpidfile}"
+  rm -f "${arkserverroot}/${arkserveroldpidfile}"
+  rm -f "${arkserverroot}/${arkmanagerpidfile}"
+  logprint "The server has been killed"
 }
 
 #
@@ -3706,6 +3720,7 @@ showUsage() {
 	run                   Runs the server without daemonizing
 	start                 Starts the server
 	stop                  Stops the server
+  kill                  kills the server
 	cancelshutdown        Aborts a running stop --warn or update --warn
 	status                Returns the status of the current ARK server instance
 	printconfig           Displays which settings are sourced from which config file
@@ -3994,6 +4009,9 @@ main(){
         ;;
         stop)
           doStop shutdown "${options[@]}"
+        ;;
+        kill)
+          dokill
         ;;
         restart)
           doStop restart "${options[@]}"
