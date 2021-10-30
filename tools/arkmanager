@@ -4011,7 +4011,7 @@ main(){
           doStop shutdown "${options[@]}"
         ;;
         kill)
-          dokill
+          doKill
         ;;
         restart)
           doStop restart "${options[@]}"
