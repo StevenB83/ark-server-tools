@@ -1640,6 +1640,7 @@ doKill() {
   logprint "Killing server"
   rm -f "$arkserverroot/$arkautorestartfile"
   rm -f "$arkserverroot/$arkoldautorestartfile"
+  PID="$(getServerPID)"
   kill -KILL "$PID" >/dev/null 2>&1
   rm -f "${arkserverroot}/${arkserverpidfile}"
   rm -f "${arkserverroot}/${arkserveroldpidfile}"
