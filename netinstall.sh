@@ -4,7 +4,7 @@
 # Net Installer, used with curl
 #
 
-arkstGithubRepo="arkmanager/ark-server-tools"
+arkstGithubRepo="StevenB83/ark-server-tools"
 
 steamcmd_user="$1"
 shift
@@ -133,4 +133,3 @@ if [ "$channel" = "master" ] && [ -z "$unstable" ]; then
 else
   doInstallFromBranch "$channel" "${args[@]}"
 fi
-

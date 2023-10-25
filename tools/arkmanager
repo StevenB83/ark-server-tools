@@ -5,8 +5,9 @@
 #
 # Original author:      LeXaT
 # Original Maintainer:  FezVrasta
-# Current Maintainer:   klightspeed
+# Current Maintainer:   klightspeed (arkmanager/ark-server-tools)
 # Contributors:         Sispheor, Atriusftw, klightspeed, lexat, puseidr, chriscpritchard
+# Fork Maintainer:      StevenB83
 
 #disable exportall so options are no exported under Debian et al.
 set +o allexport
@@ -30,7 +31,7 @@ arkstUsePkgManager=''
 arkstRootUseEnv=''
 
 # Set this to override the main fork
-arkstGithubRepoOverride=''
+arkstGithubRepoOverride='StevenB83/ark-server-tools'
 
 # Set this to override the global config file path
 arkstGlobalCfgFileOverride=''
@@ -372,7 +373,7 @@ checkConfig() {
       if [ ! -w "${savedarksdir}" ]; then
         echo -e "[" "$RED" "ERROR" "$NORMAL" "]" "\tThe ARK SavedArks directory is not writable, and saveworld will fail" >&2
       fi
-      
+
       mkdir -p "${arkserverroot}/${arkserverdir:-ShooterGame}/Content/Mods"
       if [ ! -w "${arkserverroot}/${arkserverdir:-ShooterGame}/Content/Mods" ]; then
         echo -e "[" "$RED" "ERROR" "$NORMAL" "]" "\tThe ARK Mods directory is not writable, and installmod will fail" >&2
@@ -1143,7 +1144,7 @@ doRun() {
     echo "Aborting - two servers MUST NOT run from the same directory"
     exit 1
   fi
-  
+
   # $$ returns the main process, $BASHPID returns the current process
   echo "$BASHPID" >"${arkserverroot}/${arkmanagerpidfile}"
 
@@ -1350,7 +1351,7 @@ doRun() {
       restartserver=1
       touch "$arkserverroot/$arkautorestartfile"
     fi
-    # Retries for checking it the server comes back up after going down
+    # Retries for checking if the server comes back up after going down
     serverdowntries=0
 
     sleep 5
@@ -1375,8 +1376,8 @@ doRun() {
         elif isTheServerUp; then
           (( serverdowntries++ ))
 
-          if (( serverdowntries > 12 )); then
-            # Server has not been listening for 60 seconds, so restart it.
+          if (( serverdowntries > 120 )); then
+            # Server has not been listening for 10 minutes, so restart it.
             echo "$(timestamp): The server has stopped listening"
             echo "$(timestamp): Restarting server"
             notify "${notifyMsgStoppedListening:-Server has stopped listening - restarting}"
@@ -1385,7 +1386,7 @@ doRun() {
                 break
               fi
               kill -INT "-$serverpid"
-              sleep 5
+              sleep 10
             done
             if kill -0 "-$serverpid"; then
               echo "$(timestamp): Graceful restart failed - killing server"
@@ -1514,12 +1515,12 @@ doStart() {
     if [[ " $* " =~ " --alwaysrestart " ]]; then
       arkAlwaysRestartOnCrash=true
     fi
-    
+
     nobackground=
     if [[ " $* " =~ " --no-background " ]]; then
       nobackground=1
     fi
-    
+
     tput sc
     logprint "The server is starting..."
 
@@ -1626,7 +1627,7 @@ doStop() {
       kill -INT "$PID" >/dev/null 2>&1
     fi
 
-    for (( i = 0; i < 20; i++ )); do
+    for (( i = 0; i < 600; i++ )); do
       sleep 1
       if ! isTheServerRunning; then
         break
@@ -1671,6 +1672,21 @@ doStopAll(){
       )
     fi
   done
+}
+
+#
+# kills the ARK server
+#
+doKill() {
+  logprint "Killing server"
+  rm -f "$arkserverroot/$arkautorestartfile"
+  rm -f "$arkserverroot/$arkoldautorestartfile"
+  PID="$(getServerPID)"
+  kill -KILL "$PID" >/dev/null 2>&1
+  rm -f "${arkserverroot}/${arkserverpidfile}"
+  rm -f "${arkserverroot}/${arkserveroldpidfile}"
+  rm -f "${arkserverroot}/${arkmanagerpidfile}"
+  logprint "The server has been killed"
 }
 
 #
@@ -1856,9 +1872,9 @@ printWarnMessage(){
 isUpdateCancelRequested(){
   if [ -n "$chatCommandRestartCancel" ]; then
     local canceltime="$(
-      find "${arkserverroot}/${arkserverdir}/Saved/Logs" -name 'ServerGame.*.log' -mmin -5 -print0 | 
-        xargs -0 grep -F -e "${chatCommandRestartCancel}" | 
-        sed 's@^[[]\(....\)\.\(..\)\.\(..\)-\(..\)\.\(..\)\.\(..\):.*@\1-\2-\3 \4:\5:\6 UTC@' | 
+      find "${arkserverroot}/${arkserverdir}/Saved/Logs" -name 'ServerGame.*.log' -mmin -5 -print0 |
+        xargs -0 grep -F -e "${chatCommandRestartCancel}" |
+        sed 's@^[[]\(....\)\.\(..\)\.\(..\)-\(..\)\.\(..\)\.\(..\):.*@\1-\2-\3 \4:\5:\6 UTC@' |
         head -n1)"
     if [ -n "${canceltime}" ]; then
       canceltime="$(date +%s --date="${canceltime}")"
@@ -2228,7 +2244,7 @@ doUpdate() {
           logprint "Unable to find saved arks directory"
         else
           mapfile="${savedir}/${mapname}.ark"
-  
+
           if [ ! -f "${mapfile}" ]; then
             sleep 2
           fi
@@ -2369,7 +2385,7 @@ checkForModUpdate(){
   local cancheckmodavail=1
   local modmissing=
   local revstatcode=
-  local alluptodate=1 
+  local alluptodate=1
 
   if [[ " $* " =~ " --revstatus " ]]; then
     revstatcode=1
@@ -3098,7 +3114,7 @@ doBackup(){
   echo -ne "${NORMAL} Copying ARK world file (${mapname}) "
 
   local mapfile="${savedir}/${mapname}.ark"
-  
+
   cp -p "${mapfile}" "${backupdir}/${mapname}.ark"
   if [ ! -f "${backupdir}/${mapname}.ark" ]; then
     sleep 2
@@ -3139,7 +3155,7 @@ doBackup(){
       fi
     done
   fi
-  
+
   # Copy map autobackups
   if [ -n "$includeAutoBackups" ] && [ "$includeAutoBackups" != "false" ]; then
     echo -e "${NORMAL} Copying all ARK world autobackup files"
@@ -3244,10 +3260,9 @@ doBackup(){
   else
     echo -e "${NORMAL}\e[68G[ ${RED}FAILED${NORMAL} ]"
   fi
-   
-   
+
    echo -ne "${NORMAL} Copying Game.ini "
-  
+
   cp -p "${savedcfgdir}/Game.ini" "${backupdir}/Game.ini"
   if [ ! -s "${backupdir}/Game.ini" ]; then
     sleep 2
@@ -3258,8 +3273,7 @@ doBackup(){
   else
     echo -e "${NORMAL}\e[68G[ ${RED}FAILED${NORMAL} ]"
   fi
-  
-  
+
   #Tar the files and remove the original Backup Directory.  Saves about 50MB of disk space per backup
 
   echo -ne "${NORMAL} Compressing Backup "
@@ -3806,6 +3820,7 @@ showUsage() {
 	run                   Runs the server without daemonizing
 	start                 Starts the server
 	stop                  Stops the server
+  kill                  kills the server
 	cancelshutdown        Aborts a running stop --warn or update --warn
 	status                Returns the status of the current ARK server instance
 	printconfig           Displays which settings are sourced from which config file
@@ -3883,7 +3898,7 @@ main(){
 
   # check the configuration and throw errors or warnings if needed
   checkConfig
-  
+
   status=0
 
   while true; do
@@ -4096,6 +4111,9 @@ main(){
         ;;
         stop)
           doStop shutdown "${options[@]}"
+        ;;
+        kill)
+          doKill
         ;;
         restart)
           doStop restart "${options[@]}"
